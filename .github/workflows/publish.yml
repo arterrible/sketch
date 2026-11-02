@@ -1,8 +1,10 @@
 name: publish
-# Push a tag v<version> (matching package.json) to publish to npm with provenance.
+# Publish to npm with provenance: push a tag v<version> matching package.json, or run it by hand
+# (Actions, publish, Run workflow), which publishes the version in package.json if it is not on npm yet.
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 permissions:
   contents: read
   id-token: write
@@ -16,7 +18,12 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
       - name: tag matches package.json
+        if: github.event_name == 'push'
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - name: version not already on npm
+        run: |
+          v=$(node -p "require('./package.json').version")
+          if npm view "@arterrible/sketch@$v" version >/dev/null 2>&1; then echo "$v is already published"; exit 1; fi
       - run: npm test
       - run: npm publish --provenance --access public
         env:

@@ -39,7 +39,7 @@ npm test        # node --test, no dependencies
 open demo/index.html
 ```
 
-Release: bump `version` in package.json, `npm run build`, commit, then push a tag `v<version>`. The publish workflow tests and publishes to npm with provenance.
+Release: bump `version` in package.json, `npm run build`, commit, then push a tag `v<version>` or run the publish workflow by hand. It tests and publishes to npm with provenance.
 
 ## Licence
 
