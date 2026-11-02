@@ -1,0 +1,21 @@
+{
+  "name": "@arterrible/sketch",
+  "version": "0.1.0",
+  "description": "Claude describes what to draw; Sketch lays it out and draws it by hand. Interactive, themeable diagrams for chats and artifact pages.",
+  "license": "MIT",
+  "author": "Art Terrible",
+  "repository": { "type": "git", "url": "git+https://github.com/arterrible/sketch.git" },
+  "homepage": "https://github.com/arterrible/sketch#readme",
+  "keywords": ["diagram", "claude", "elk", "roughjs", "svg", "sketch"],
+  "main": "dist/sketch.js",
+  "jsdelivr": "dist/sketch.js",
+  "unpkg": "dist/sketch.js",
+  "files": ["dist", "skill", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "publishConfig": { "access": "public", "provenance": true },
+  "engines": { "node": ">=20" }
+}

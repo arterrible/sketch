@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketch demo</title>
+<style>
+:root { --bg:#f3f1ea; --card:#fdfcf8; --line:#ddd8cb; }
+@media (prefers-color-scheme: dark) { :root { --bg:#121315; --card:#1a1c20; --line:#2c2f35; color-scheme: dark } }
+body { margin:0; background:var(--bg); font-family: system-ui, sans-serif; }
+main { max-width:1120px; margin:0 auto; padding:24px 16px 64px; display:flex; flex-direction:column; gap:24px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; }
+</style>
+</head>
+<body>
+<main>
+  <section class="card" id="scene-arch-out"></section>
+  <section class="card" id="scene-quickship-out"></section>
+  <section class="card" id="scene-request-out"></section>
+</main>
+<script type="application/json" id="scene-arch">{
+  "title": "How the Dev Board fits together",
+  "subtitle": "The manager owns the sessions; everything you look at is a window onto it.",
+  "direction": "down",
+  "groups": [
+    { "id": "look", "label": "What you look at" },
+    { "id": "platform", "label": "Runs without you" },
+    { "id": "work", "label": "The work" }
+  ],
+  "nodes": [
+    { "id": "browser", "label": "Dev Board", "sub": "board, run page, terminal", "group": "look", "description": "The browser page. Close it any time: the runs keep going." },
+    { "id": "rove", "label": "Rove", "sub": "one more window", "group": "look", "tone": "muted", "description": "Proposed: Rove attaches to the same live session instead of taking it over." },
+    { "id": "web", "label": "Web server", "sub": "token, API, bridge", "group": "platform", "description": "Checks the token, Host and Origin on every request, and bridges terminals to the manager." },
+    { "id": "mgr", "label": "Manager", "sub": "owns every claude", "group": "platform", "tone": "accent", "description": "Starts at logon. Keeps each session in its own terminal, redraws it on reattach, resumes after a reboot." },
+    { "id": "ext", "label": "TFS, GitHub, git", "sub": "the stage facts", "group": "platform", "tone": "muted", "description": "Polled for the facts that move a card across the stages." },
+    { "id": "claude", "label": "claude × N", "sub": "one worktree each", "group": "work", "description": "One interactive Claude Code session per ticket." },
+    { "id": "events", "label": "events.jsonl", "shape": "cylinder", "group": "work", "description": "Every hook appends one line: what each session is doing right now." }
+  ],
+  "edges": [
+    { "from": "browser", "to": "web", "label": "HTTP + WS" },
+    { "from": "rove", "to": "mgr", "label": "attach", "style": "dashed" },
+    { "from": "web", "to": "mgr", "label": "pipe" },
+    { "from": "web", "to": "ext", "label": "poll" },
+    { "from": "mgr", "to": "claude", "label": "spawns" },
+    { "from": "claude", "to": "events", "label": "hooks", "style": "dashed" },
+    { "from": "events", "to": "web", "label": "tail" }
+  ],
+  "steps": [
+    { "title": "You start a run", "text": "On the board you enter an AB#. The web server passes it to the manager.", "highlight": ["browser", "web", "browser->web", "web->mgr", "mgr"] },
+    { "title": "The manager owns it", "text": "It cuts a worktree and starts claude in its own terminal. Closing the browser changes nothing.", "highlight": ["mgr", "claude", "mgr->claude"] },
+    { "title": "Every step reports", "text": "Hooks append a line per event, and the web server tails the file to move the card live.", "highlight": ["claude", "events", "claude->events", "events->web", "web"] },
+    { "title": "Stages come from facts", "text": "Branch, PR, CI and the TFS state decide which column the card sits in.", "highlight": ["ext", "web->ext", "web"] },
+    { "title": "Rove is just another window", "text": "Proposed: Rove attaches to the same session rather than taking it over.", "highlight": ["rove", "rove->mgr", "mgr"] }
+  ]
+}</script>
+<script type="application/json" id="scene-quickship">{
+  "title": "QuickShip, ticket to Resolved",
+  "subtitle": "One pass, with two ways out to the Spec pipeline.",
+  "direction": "right",
+  "nodes": [
+    { "id": "ticket", "label": "Ticket", "sub": "AB# or FBI", "shape": "rounded", "description": "A Dev task, Bug or Feature Backlog item whose outcome is already settled." },
+    { "id": "ready", "label": "Ready?", "shape": "diamond", "tone": "accent", "description": "Auth, privileges, migrations or API shape changes mean it is not a QuickShip." },
+    { "id": "impl", "label": "Implement", "sub": "off origin/main", "description": "Branch from a fresh origin/main as art/AB#<id>-<slug>." },
+    { "id": "pre", "label": "Preflight", "sub": "push-gate verdict", "description": "The review-gate needs a verdict for this exact HEAD before the push is allowed." },
+    { "id": "pr", "label": "PR", "sub": "evidence embedded", "tone": "accent", "description": "Ready for review, with screenshots or clips for any UI change." },
+    { "id": "ci", "label": "CI + review", "sub": "PRCIWatch", "description": "Mechanical failures are fixed unattended; design calls stop and ask." },
+    { "id": "done", "label": "Resolved", "shape": "rounded", "description": "TFS moves forward one legal hop at a time." },
+    { "id": "spec", "label": "Spec pipeline", "sub": "STOP and promote", "tone": "muted", "description": "Not a failure: the ticket needs a design first." }
+  ],
+  "edges": [
+    { "from": "ticket", "to": "ready" },
+    { "from": "ready", "to": "impl", "label": "yes" },
+    { "from": "ready", "to": "spec", "label": "open question", "style": "dashed" },
+    { "from": "impl", "to": "pre" },
+    { "from": "pre", "to": "pr", "label": "clean" },
+    { "from": "pre", "to": "spec", "label": "blockers", "style": "dashed" },
+    { "from": "pr", "to": "ci" },
+    { "from": "ci", "to": "done" }
+  ],
+  "steps": [
+    { "title": "Read the ticket", "text": "The FBI is the spec. Every acceptance criterion gets a readiness check.", "highlight": ["ticket", "ready", "ticket->ready"] },
+    { "title": "Not ready? Stop early", "text": "An unmade design call promotes the work to the Spec pipeline instead of guessing.", "highlight": ["ready", "spec", "ready->spec"] },
+    { "title": "Build and gate it", "text": "Implement on a fresh branch, then Preflight gives the verdict the push-gate needs.", "highlight": ["impl", "pre", "ready->impl", "impl->pre"] },
+    { "title": "Ship and converge", "text": "PR with evidence, CI watched to green, then TFS moves to Resolved.", "highlight": ["pr", "ci", "done", "pre->pr", "pr->ci", "ci->done"] }
+  ]
+}</script>
+<script type="application/json" id="scene-request">{
+  "title": "When a run needs you",
+  "subtitle": "From a permission prompt to your answer, in four hops.",
+  "direction": "right",
+  "nodes": [
+    { "id": "claude", "label": "claude", "sub": "wants to run a tool", "description": "Bash(npm install papaparse) needs permission." },
+    { "id": "hook", "label": "PermissionRequest", "sub": "hook fires", "shape": "note", "description": "Fires as the dialog shows, about six seconds before the Notification hook would." },
+    { "id": "events", "label": "events.jsonl", "shape": "cylinder", "description": "One appended line, never the prompt text." },
+    { "id": "board", "label": "Needs you", "sub": "pinned strip", "tone": "accent", "description": "The card jumps to the pinned strip at the top of the board." },
+    { "id": "you", "label": "You", "shape": "person", "description": "Answer from the banner, or open the terminal." }
+  ],
+  "edges": [
+    { "from": "claude", "to": "hook" },
+    { "from": "hook", "to": "events", "label": "append" },
+    { "from": "events", "to": "board", "label": "tail" },
+    { "from": "board", "to": "you" },
+    { "from": "you", "to": "claude", "label": "Yes once", "style": "dashed" }
+  ]
+}</script>
+<script src="../dist/sketch.js"></script>
+<script>
+for (const el of document.querySelectorAll("script[type='application/json']")) {
+  Sketch.draw("#" + el.id + "-out", JSON.parse(el.textContent))
+}
+</script>
+</body>
+</html>
