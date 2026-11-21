@@ -1,6 +1,6 @@
 {
   "name": "@arterrible/sketch",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Claude describes what to draw; Sketch lays it out and draws it by hand. Interactive, themeable diagrams for chats and artifact pages.",
   "license": "MIT",
   "author": "Art Terrible",
