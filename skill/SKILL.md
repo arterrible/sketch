@@ -15,7 +15,7 @@ Pass exactly this as the widget code, with the scene in the `draw` call. No othe
 
 ```html
 <div id="sketch" style="min-height: 320px"></div>
-<script src="https://cdn.jsdelivr.net/npm/@arterrible/sketch@0.1.0/dist/sketch.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@arterrible/sketch@0.2.0/dist/sketch.js"></script>
 <script>
   Sketch.draw("#sketch", {/* scene JSON */});
 </script>
@@ -54,6 +54,9 @@ Same script tag (jsDelivr's `/npm/` path is on the artifact allowlist). One `<di
 - Nodes: `id`, `label` (one to four words), optional `sub` (a muted second line, a few words), `description` (hover text, one sentence), `group`, `shape` (`box`, `rounded`, `diamond` = decision, `cylinder` = storage, `person` = actor, `note`), `tone` (`accent` = the key element, `muted` = context, `store`, `warn`, `done`).
 - Groups: `id`, `label`, optional `parent` (another group's id). A group draws as a dashed band.
 - Edges: `from`, `to` (node ids), optional `label` (one or two words), `style` (`solid`, `dashed`).
+- Edges may also take `tone` (same values as nodes) to colour one relationship, such as a security check.
+- `legend` (optional): `{ "accent": "Application", "store": "Data", "warn": "Security" }`, one label per tone you used.
+- `theme` (optional): `hand` (default), `clean`, `pro` or `blueprint`. Leave it out: every drawing carries a theme dropdown and the viewer's pick sticks across drawings.
 - Steps: `title`, `text`, `highlight` (node, group and edge ids; an edge id is `"from->to"`). Each step circles its highlights in red pen and fades the rest.
 - Ids are unique across groups and nodes. Write nodes and edges in reading order: the layout respects it.
 

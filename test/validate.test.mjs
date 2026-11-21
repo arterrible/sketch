@@ -69,3 +69,29 @@ test("seeds are stable and positive", () => {
   assert.notEqual(Sketch.seedOf("web"), Sketch.seedOf("mgr"))
   assert.ok(Sketch.seedOf("") > 0)
 })
+
+test("theme, edge tone and legend are checked", () => {
+  const errs = Sketch.validate({ ...good, theme: "neon", legend: { loud: "x" }, edges: [{ from: "a", to: "b", tone: "pink" }] })
+  assert.ok(errs.some((e) => e.includes('theme "neon"')))
+  assert.ok(errs.some((e) => e.includes('legend: "loud"')))
+  assert.ok(errs.some((e) => e.includes('edges[0]: tone "pink"')))
+  assert.deepEqual(Sketch.validate({ ...good, theme: "pro", legend: { accent: "App" } }), [])
+})
+
+test("the viewer's pick beats the caller's theme, which beats the scene's", () => {
+  assert.equal(Sketch.pickTheme({ stored: "pro", option: "clean", scene: "blueprint" }), "pro")
+  assert.equal(Sketch.pickTheme({ stored: "junk", option: "clean", scene: "blueprint" }), "clean")
+  assert.equal(Sketch.pickTheme({ style: "clean", scene: "blueprint" }), "clean")
+  assert.equal(Sketch.pickTheme({ scene: "blueprint" }), "blueprint")
+  assert.equal(Sketch.pickTheme({}), "hand")
+})
+
+test("a group is laid out where its first node was written, not before every loose node", () => {
+  const scene = {
+    groups: [{ id: "g", label: "G" }],
+    nodes: [{ id: "user", label: "User" }, { id: "a", label: "A", group: "g" }, { id: "b", label: "B", group: "g" }, { id: "late", label: "Late" }],
+    edges: [{ from: "user", to: "a" }, { from: "b", to: "late" }],
+  }
+  const ids = Sketch.elkGraph(scene, () => 10).children.map((c) => c.id)
+  assert.deepEqual(ids, ["user", "g", "late"])
+})

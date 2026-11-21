@@ -27,7 +27,9 @@ Inspired by [ddkbs/sketchy](https://github.com/ddkbs/sketchy); a clean-room take
 </script>
 ```
 
-`Sketch.draw(target, scene, { style: "hand" | "clean" })` returns `{ errors, step(i), destroy() }`. A scene that does not validate draws a message naming every field to fix. The full scene format and when to draw are in [skill/SKILL.md](skill/SKILL.md), which is also the Claude skill.
+`Sketch.draw(target, scene, { theme, picker })` returns `{ errors, step(i), theme(name), destroy() }`.
+
+Themes: `hand` (rough.js strokes, Kalam), `clean` (straight lines, Plex Sans), `pro` (dotted canvas, tone dots, pill labels, edges tinted by their source) and `blueprint` (navy grid card). Every drawing shows a theme dropdown; a pick is saved in `localStorage` and applied to every Sketch on the page and on later pages. Pass `picker: false` to hide it and ignore the saved pick. Precedence: the viewer's pick, then `options.theme` (or the 0.1 name `options.style`), then `scene.theme`, then `hand`. A scene that does not validate draws a message naming every field to fix. The full scene format and when to draw are in [skill/SKILL.md](skill/SKILL.md), which is also the Claude skill.
 
 Sketch loads elkjs and rough.js from jsDelivr on first use (pinned versions, about 0.5 MB compressed, then cached) and Kalam and Caveat from Google Fonts. Nothing else is fetched. It follows light and dark mode through CSS variables (`--sk-*`), which a page can override.
 
